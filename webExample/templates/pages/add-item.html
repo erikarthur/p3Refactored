@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block navigation %}
+    <div style="display:inline-block;vertical-align: top; width:19%">
+        <h2>Navigation</h2>
+
+        <div>
+            <a href={{ home }}>Home</a>
+         </div>
+
+        {% for category in categories%}
+            <div>
+                <a href={{ server }}{{ category[1] }}>{{ category[1] }}</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+  <div class="flash">{{ message }}</div>
+{% endfor %}
+
+    <form action="{{ url_for('add_item') }}" method=post class=add-entry>
+
+
+        {{ form.name.label }}
+        {{ form.name }}
+
+        {{ form.description.label }}
+        {{ form.description }}
+
+        {{ form.picture.label }}
+        {{ form.picture }}
+
+        {{ form.id }}
+
+        {{ form.submit }}
+
+    </form>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+<div style="display:inline-block;vertical-align: top; width:19%">
+    <h2>Navigation</h2>
+
+    <div>
+        <a href={{ home }}>Home</a>
+     </div>
+
+    {% for category in categories%}
+        <div>
+            <a href={{ server }}{{ category.category }}>{{ category.category }}</a>
+        </div>
+    {% endfor %}
+
+</div>

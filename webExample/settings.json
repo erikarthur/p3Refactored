@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "web": "localhost",
+    "webPort" : 8000,
+    "server": "localhost",
+    "serverPort" : 7000
+  }
+}

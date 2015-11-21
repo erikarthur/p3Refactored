@@ -1,0 +1,31 @@
+<header class="top" role="header">
+     <div class="col-md-9">
+         <H1>Welcome to the Catalog App</H1>
+     </div>
+     <div class="col-md-3 pull right">
+        <div>
+            <div>
+                <span><img id="profile_img" class="profile-img"></span>
+                <span id="user_id"></span>
+            </div>
+            <div id="GP_signinButton">
+              <span class="g-signin"
+                data-scope="openid email"
+                data-clientid="223984334392-nrdhl89o2dgs9bvtmflmfn6mhq340qdd.apps.googleusercontent.com"
+                data-redirecturi="post_signin"
+                data-accesstype="offline"
+                data-cookiepolicy="single_host_origin"
+                data-callback="signInCallback"
+                data-approvalprompt="force">
+              </span>
+            </div>
+            <div id="FB_signinButton">
+            <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+            </fb:login-button>
+            </div>
+            <button class="btn" type="button" id="signoutButton" onclick="displaySigninButtons()" style="visibility: collapse">Signout</button>
+
+        </div>
+     </div>
+    </div>
+</header>

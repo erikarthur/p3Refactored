@@ -1,0 +1,26 @@
+
+<div>
+     <div style="width: 70%;display: inline-block">
+         <H1>Welcome to the Catalog App</H1>
+         <h2 id="user_id"></h2>
+     </div>
+     <div style="width: 29%;display: inline-block">
+        <div>
+            <div id="GP_signinButton">
+              <span class="g-signin"
+                data-scope="openid email"
+                data-clientid="223984334392-nrdhl89o2dgs9bvtmflmfn6mhq340qdd.apps.googleusercontent.com"
+                data-redirecturi="post_signin"
+                data-accesstype="offline"
+                data-cookiepolicy="single_host_origin"
+                data-callback="signInCallback"
+                data-approvalprompt="force">
+              </span>
+            </div>
+            <div id="FB_signinButton">
+            <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+            </fb:login-button>
+            </div>
+        </div>
+     </div>
+</div>

@@ -1,0 +1,20 @@
+<div style="display: inline-block">
+    <h2>Catalog of {{ name }}</h2>
+    {% for item in category %}
+        <div style="margin-bottom: 10px;">
+            <div>
+                <h3>{{ item.item_name }}</h3>
+            </div>
+            <div>
+                {{ item.item_description }}
+            </div>
+            <div>
+                {{ item.item_picture }}
+            </div>
+            {% if owner == item.email %}
+            <div>{{ item.email }}</div>
+            {% endif  %}
+        </div>
+    {% endfor %}
+
+</div>

@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block navigation %}
+    <div style="display:inline-block;vertical-align: top; width:19%">
+        <h2>Navigation</h2>
+
+        <div>
+            <a href={{ home }}>Home</a>
+         </div>
+
+        {% for category in categories%}
+            <div>
+                <a href={{ server }}{{ category[1] }}>{{ category[1] }}</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div style="display: inline-block;overflow-y: scroll;height: inherit; width:80%">
+    <h2>Add a Category</h2>
+   {% from "__formhelpers.html" import render_field %}
+    <form method=post action= {{  url_for('add_category') }}  >
+      <dl>
+        {{ render_field(form.category_name) }}
+      </dl>
+      <p><input type=submit value=Add Category>
+    </form>
+    </div>
+{% endblock %}

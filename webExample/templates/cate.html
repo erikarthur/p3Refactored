@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    {% for cat in categories %}
+    <div>{{ cat.name }}</div>
+    {% endfor %}
+
+    <h2>items</h2>
+    {% for item in items %}
+    <div>{{ item.name }}</div>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block navigation %}
+    <div class="col-md-3">
+        <h2>Category</h2>
+
+         <div class="nav-bar-item">
+            <a href={{ home }}>Home</a>
+         </div>
+
+        {% for category in categories%}
+            <div class="nav-bar-item">
+                <a href=/category/{{category.category_name}}> {{ category.category_name }}</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-9">
+    <h2>Latest Catalog Items</h2>
+    {% for latest_item in latest_items %}
+        <div style="margin-bottom: 10px">
+            <div>
+                <h3>{{ latest_item.item_name }}</h3>
+            </div>
+            <div>
+                {{ latest_item.description }}
+            </div>
+            <div>
+                {{ latest_item.picture }}
+            </div>
+            <div>
+                {{ latest_item.id }}
+            </div>
+            {%  if email == latest_item.owner.email  %}
+            <div>
+                {{ latest_item.owner.owner_name }}
+            </div>
+
+            <div>
+                {{ latest_item.owner.email }}
+            </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

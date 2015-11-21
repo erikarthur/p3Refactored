@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta chaarset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-signin-client_id" content="223984334392-nrdhl89o2dgs9bvtmflmfn6mhq340qdd.apps.googleusercontent.com">
+    <title>Catalog Homepage</title>
+    <script>
+        <!--FACEBOOK SIGN IN -->
+      window.fbAsyncInit = function() {
+          FB.init({
+            appId      : '734426900022927',
+            cookie     : true,  // enable cookies to allow the server to access
+                                // the session
+            xfbml      : true,  // parse social plugins on this page
+            version    : 'v2.2' // use version 2.2
+          });
+          };
+
+          function facebookLogout() {
+            FB.logout(function(response) {
+                console.log("Signed out of FB");
+                sendSignoutToServer();
+            });
+          }
+
+          // Load the SDK asynchronously
+          (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//apis.google.com/js/platform.js" async defer> </script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body class="container-fluid">
+    {% include 'common/header.html' %}
+    <div class="row" style="height: 500px;">
+        {% block navigation %} {% endblock %}
+        {% block content %} {% endblock %}
+    </div>
+    {% include 'common/footer.html' %}
+    <div id="result"></div>
+     <script>
+
+        //displays welcome and hides signin
+        function hideSigninButtons() {
+             if (sessionStorage.getItem('email') != null) {
+                 $('#FB_signinButton').attr('style', 'display: none');
+                 $('#GP_signinButton').attr('style', 'display: none');
+                 $('#signoutButton').attr('style', 'visibility: visible');
+                 $('#profile_img').attr('src', sessionStorage.getItem('picture'));
+                 $('#user_id').text("Welcome " + sessionStorage.getItem('name'));
+           }
+        }
+
+        function sendSignoutToServer() {
+             if (sessionStorage.getItem("auth_service") == 'Google')
+                   signoutURL = '/gdisconnect';
+             else
+                   signoutURL = '/fbdisconnect';
+
+            $.ajax({
+                 type:'GET',
+                 url: signoutURL,
+                 success: function(result) {
+                     $('#FB_signinButton').attr('style', 'display: block');
+                     $('#GP_signinButton').attr('style', 'display: block');
+                     $('#signoutButton').attr('style', 'visibility: collapse');
+                     $('#user_id').text("Not logged in.");
+                     sessionStorage.clear();
+                 }
+             });
+        }
+
+        function signInCallback(authResult) {
+            //loading the auth2 namespace so the user can signout later.
+            // Had trouble with this loading aynchronously so added it here so
+            // it would be available for a subsequent signout
+            gapi.load('auth2', function() {
+                gapi.auth2.init();
+                });
+
+            if (authResult['code']) {
+                // Hide the sign-in button now that the user is authorized
+
+                // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the catalog page and then redirect back to the main restaurants page
+                $.ajax({
+                  type: 'POST',
+                  url: '/gconnect?state={{STATE}}',
+                  processData: false,
+                  data: authResult['code'],
+                  contentType: 'application/octet-stream; charset=utf-8',
+                  success: function(result) {
+                    // Handle or verify the server response if necessary.
+                    if (result) {
+                        json_result = JSON.parse(result)
+
+                        sessionStorage.setItem("email", json_result.email);
+                        sessionStorage.setItem("name", json_result.name);
+                        sessionStorage.setItem("picture", json_result.picture);
+                        sessionStorage.setItem("auth_service", json_result.auth_service);
+                        console.log(sessionStorage);
+                         hideSigninButtons();
+                    } else if (authResult['error']) {
+                      console.log('There was an error: ' + authResult['error']);
+                    } else {
+                      $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                    }
+                  },
+                  error: function(result) {
+                    console.log('There was an error: ' + result);
+                  }
+
+              });
+              }
+            }
+
+          // Here we run a very simple test of the Graph API after login is
+          // successful.  See statusChangeCallback() for when this call is made.
+          function sendTokenToServer() {
+            var access_token = FB.getAuthResponse()['accessToken'];
+
+            FB.api('/me', function(response) {
+              console.log('Successful login for: ' + response.name);
+             $.ajax({
+              type: 'POST',
+              url: '/fbconnect?state={{STATE}}',
+              processData: false,
+              data: access_token,
+              contentType: 'application/octet-stream; charset=utf-8',
+              success: function(result) {
+                  json_result = JSON.parse(result)
+
+                  sessionStorage.setItem("email", json_result.email);
+                  sessionStorage.setItem("name", json_result.name);
+                  sessionStorage.setItem("picture", json_result.picture);
+                  sessionStorage.setItem("auth_service", json_result.auth_service);
+
+                  console.log(sessionStorage);
+
+                  hideSigninButtons();
+              },
+                 error: function(result) {
+                console.log('There was an error: ' + result);
+              }
+             });
+            });
+          }
+
+         function displaySigninButtons() {
+         //if (sessionStorage.getItem('email') != null) {
+             if (sessionStorage.getItem("auth_service") == 'Google') {
+                 var auth2 = gapi.auth2.getAuthInstance();
+
+                 auth2.signOut().then(function () {
+                     console.log('User signed out.');
+                     sendSignoutToServer();
+                 });
+             }
+             else {
+                 facebookLogout();
+             }
+        }
+
+        //called when page is loaded.
+        $(document).ready(function() {
+            if (sessionStorage.getItem('name')) {
+                hideSigninButtons();
+            }
+            else {
+                displaySigninButtons();
+            }
+        });
+
+    </script>
+
+
+
+    </body>
+</html>
