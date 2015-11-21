@@ -74,17 +74,19 @@ def add_category():
 def add_item():
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
-
+        owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
         if request.method == 'POST' and form.validate():
             # add data
-            owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
-            category = db.session.query(Categories).filter_by(id=form.id.data).first()
+
+            category = db.session.query(Categories).filter_by(id=form.category_id.data).first()
             item = Items(item_name=form.name.data, owner=owner, category=category)
             db.session.add(item)
             db.session.commit()
             return redirect(url_for('index'))
         else:
-            form.id.data = 1
+            form.category_id.data = "3"
+            # request.get_data('category')
+            form.id.data = owner.id
         return render_template('pages/add-item.html', form=form)
 
 

@@ -1,13 +1,7 @@
-from flask import Flask, render_template, json, request, redirect
-from flask import jsonify, url_for, flash, make_response
+from flask import request
+from flask import make_response
 from flask import session
-import requests
 import os
-from flask import Response
-import psycopg2
-import random
-import contextlib
-import json
 import requests
 
 from oauth2client.client import flow_from_clientsecrets
@@ -16,6 +10,8 @@ import httplib2
 import json
 
 from webExample import app
+from webExample import db
+from webExample import Owners, Categories, Items
 
 cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
 CLIENT_ID = json.loads(
@@ -36,6 +32,7 @@ def gconnect():
         return response
     # Obtain authorization code, now compatible with Python3
     request.get_data()
+    # request.get_data()
     code = request.data.decode('utf-8')
 
     try:
@@ -103,6 +100,8 @@ def gconnect():
     session['username'] = data['name']
     session['picture'] = data['picture']
     session['email'] = data['email']
+
+    check_email(session.get('email'), session.get('username'))
 
     returnData = {'auth_service': 'Google', 'picture': data['picture'],
                   'name': data['name'], 'email': data['email'],
@@ -173,6 +172,8 @@ def fbconnect():
     returnData['email'] = session['email']
     returnData['social_id'] = session['facebook_id']
 
+    check_email(session.get('email'), session.get('username'))
+
     jsonReturn = json.dumps(returnData)
     # flash("Now logged in as %s" % session['username'])
     return jsonReturn
@@ -214,3 +215,13 @@ def gdisconnect():
             json.dumps('Logged outr.', 200))
         response.headers['Content-Type'] = 'application/json'
         return response
+
+
+def check_email(email, name):
+    owner = db.session.query(Owners).filter_by(email=email).first()
+    if owner is None:
+        # add owner to database
+        new_owner = Owners(owner_name=name, email=email)
+        db.session.add(new_owner)
+        db.session.commit()
+    return
