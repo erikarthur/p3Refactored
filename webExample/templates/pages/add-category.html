@@ -10,7 +10,7 @@
 
         {% for category in categories%}
             <div>
-                <a href={{ server }}{{ category[1] }}>{{ category[1] }}</a>
+                <a href={{ server }}{{ category.name }}>{{ category[1] }}</a>
             </div>
         {% endfor %}
     </div>

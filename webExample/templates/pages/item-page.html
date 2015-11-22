@@ -1,31 +1,31 @@
 {% extends 'layout.html' %}
 
 {% block navigation %}
-    <div style="display:inline-block;vertical-align: top; width:15%; margin-left: 10px;">
         <h2>Categories</h2>
-        {% if not email %}
-             <button>Add Category</button>
-        {% else %}
-            <div class='nav-bar-item'>
+
+        <div class='nav-bar-item'>
+            {% if email %}
+                 <a href=/add-category>Add Category</a>
+            {% else %}
                 Sign in to edit
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
+
         <div class='nav-bar-item'>
                 <a href={{ home }}>Home</a>
         </div>
 
         {% for category in categories%}
             <div class='nav-bar-item'>
-                <a href=/category/{{category.category_name}}> {{ category.category_name }}</a>
+                <a href=/category/{{category.category_name}}>{{ category.category_name }}</a>
             </div>
         {% endfor %}
-    </div>
+
 {% endblock %}
 
 {% block content %}
-    <div style="display: inline-block;overflow-y: scroll;height: inherit; width:80%">
     <h2>{{ name }} Catalog Items</h2>
-    <div><a href="/add-item?category=" category_number>Add Item</a></div>
+    <div><a href=/add-item?category={{category_number}}>Add Item</a></div>
     {% for item in category %}
         <div style="margin-bottom: 10px">
             <div>
@@ -39,16 +39,13 @@
             </div>
             {%  if email == item.owner.email  %}
                 <div>
-                    {{ item.owner.owner_name }}
+                    <a href=/edit-item?item_id={{item.id}}>Edit</a>
                 </div>
                 <div>
-                    {{ item.owner.email }}
-                </div>
-                <div>
-                    <a href='/edit-item/{{ category_number}}/{{item.id}}'>Edit</a>
+                    <a href=/delete-item?item_id={{item.id}}>Delete</a>
                 </div>
             {% endif %}
         </div>
     {% endfor %}
-    </div>
+
 {% endblock %}

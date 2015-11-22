@@ -14,6 +14,7 @@ def apply_caching(response):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     return response
 
+
 @app.route('/')
 def index():
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
@@ -63,8 +64,8 @@ def add_category():
             category = Categories(category_name=form.category_name.data, owner=owner)
             db.session.add(category)
             db.session.commit()
-
-            return redirect(url_for('index'))
+            url_string = '/category/%s' % category.category_name
+            return redirect(url_string)
         else:
             form.email.data = login_session.get('email')
             return render_template('pages/add-category.html', form=form)
@@ -77,67 +78,66 @@ def add_item():
         owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
         if request.method == 'POST' and form.validate():
             # add data
-
             category = db.session.query(Categories).filter_by(id=form.category_id.data).first()
             item = Items(item_name=form.name.data, owner=owner, category=category)
+            item.description = form.description.data
+            item.picture = form.picture.data
             db.session.add(item)
             db.session.commit()
-            return redirect(url_for('index'))
+            url_string = '/category/%s' % item.category.category_name
+            return redirect(url_string)
         else:
-            form.category_id.data = "3"
-            # request.get_data('category')
+            form.category_id.data = request.args.get('category')
             form.id.data = owner.id
         return render_template('pages/add-item.html', form=form)
 
 
-# @app.route('/edit-item', methods=['POST'])
-# def edit_item():
-#     if login_session.get('email') is not None:
-#         form = Catalog_Item(request.form)
-#
-#         if request.method == 'POST' and form.validate():
-#             # add data
-#             owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
-#             category = db.session.query(Categories).filter_by(id=form.id.data).first()
-#             item = Items(item_name=form.name.data, owner=owner, category=category)
-#             db.session.add(item)
-#             db.session.commit()
-#             return redirect(url_for('index'))
-#         else:
-#             return render_template('pages/edit-item.html', form=form)
-
-@app.route('/edit-item/<category>/<item>', methods=['GET', 'POST'])
-def edit_item(category, item):
+@app.route('/delete-item', methods=['GET', 'POST'])
+def delete_item():
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
 
         if request.method == 'POST' and form.validate():
-            # add data
-            owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
-            category = db.session.query(Categories).filter_by(id=form.id.data).first()
-            item = Items(item_name=form.name.data, owner=owner, category=category)
-            db.session.add(item)
+            # delete item
+            item = db.session.query(Items).filter_by(id=form.id.data).first()
+            url_string = '/category/%s' % item.category.category_name
+            db.session.delete(item)
             db.session.commit()
-            return redirect(url_for('index'))
+            return redirect(url_string)
         else:
-            form.category_id.data = category
-            form.id.data = item
-            return render_template('pages/edit-item.html', form=form)
+            item = db.session.query(Items).filter_by(id=request.args.get('item_id')).first()
+            heading = 'Delete Item'
+            form.name.data = item.item_name
+            form.description.data = item.description
+            form.picture.data = item.picture
+            form.id.data = request.args.get('item_id')
+            form.category_id = item.category_id
+            form.submit.data = 'Delete Item'
+            return render_template('pages/delete-item.html', form=form, heading=heading)
 
-@app.route('/edit-item')
-def edit_item2():
+
+@app.route('/edit-item', methods=['GET', 'POST'])
+def edit_item():
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
 
         if request.method == 'POST' and form.validate():
-            # add data
-            owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
-            category = db.session.query(Categories).filter_by(id=form.id.data).first()
-            item = Items(item_name=form.name.data, owner=owner, category=category)
+            # delete item
+            item = db.session.query(Items).filter_by(id=form.id.data).first()
+            item.item_name = form.name.data
+            item.description = form.description.data
+            item.picture = form.picture.data
             db.session.add(item)
             db.session.commit()
-            return redirect(url_for('index'))
+            url_string = '/category/%s' % item.category.category_name
+            return redirect(url_string)
         else:
-            form.category_id.data = form.category_id.data
-            form.id.data = form.id.data
-            return render_template('pages/edit-item.html', form=form)
+            item = db.session.query(Items).filter_by(id=request.args.get('item_id')).first()
+            heading = 'Edit Item'
+            form.name.data = item.item_name
+            form.description.data = item.description
+            form.picture.data = item.picture
+            form.id.data = request.args.get('item_id')
+            form.category_id = item.category_id
+            form.submit.data = 'Save Changes'
+            return render_template('pages/edit-item.html', form=form, heading=heading)

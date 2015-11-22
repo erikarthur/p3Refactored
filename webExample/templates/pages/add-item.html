@@ -1,19 +1,16 @@
 {% extends 'layout.html' %}
 
 {% block navigation %}
-    <div style="display:inline-block;vertical-align: top; width:19%">
         <h2>Navigation</h2>
-
         <div>
             <a href={{ home }}>Home</a>
          </div>
 
         {% for category in categories%}
             <div>
-                <a href={{ server }}{{ category[1] }}>{{ category[1] }}</a>
+               <a href=/category/{{category.category_name}}> {{ category.category_name }}</a>
             </div>
         {% endfor %}
-    </div>
 {% endblock %}
 
 {% block content %}
@@ -24,21 +21,20 @@
     <form action="{{ url_for('add_item') }}" method=post class=add-entry>
 
 
-        {{ form.name.label }}
-        {{ form.name }}
+        <dt>{{ form.name.label }}</dt>
+        <dd>{{ form.name }}</dd>
 
-        {{ form.description.label }}
-        {{ form.description }}
+        <dt>{{ form.description.label }}</dt>
+        <dd>{{ form.description }}</dd>
 
-        {{ form.picture.label }}
-        {{ form.picture }}
+        <dt>{{ form.picture.label }}</dt>
+        <dd>{{ form.picture }}</dd>
 
         {{ form.id }}
         {{ form.category_id }}
 
 
-        {{ form.submit }}
+        <dd>{{ form.submit }}</dd>
 
     </form>
-
 {% endblock %}

@@ -41,11 +41,11 @@
 </head>
 <body class="container-fluid">
     {% include 'common/header.html' %}
-    <div class="row" style="height: 500px;">
-        {% block navigation %} {% endblock %}
-        {% block content %} {% endblock %}
+    <div class="row">
+        <div class="col-md-3">{% block navigation %} {% endblock %}</div>
+        <div class="col-md-9">{% block content %} {% endblock %}</div>
     </div>
-    {% include 'common/footer.html' %}
+{#    {% include 'common/footer.html' %}#}
     <div id="result"></div>
      <script>
 

@@ -1,19 +1,25 @@
 {% extends 'layout.html' %}
 
 {% block navigation %}
-    <div class="col-md-3">
-        <h2>Category</h2>
+    <h2>Categories</h2>
 
-         <div class="nav-bar-item">
-            <a href={{ home }}>Home</a>
-         </div>
+        <div class='nav-bar-item'>
+            {% if email %}
+                 <a href=/add-category>Add Category</a>
+            {% else %}
+                Sign in to edit
+            {% endif %}
+        </div>
+
+        <div class='nav-bar-item'>
+                <a href={{ home }}>Home</a>
+        </div>
 
         {% for category in categories%}
-            <div class="nav-bar-item">
-                <a href=/category/{{category.category_name}}> {{ category.category_name }}</a>
+            <div class='nav-bar-item'>
+                <a href=/category/{{category.category_name}}>{{ category.category_name }}</a>
             </div>
         {% endfor %}
-    </div>
 {% endblock %}
 
 {% block content %}
@@ -30,17 +36,13 @@
             <div>
                 {{ latest_item.picture }}
             </div>
-            <div>
-                {{ latest_item.id }}
-            </div>
-            {%  if email == latest_item.owner.email  %}
-            <div>
-                {{ latest_item.owner.owner_name }}
-            </div>
-
-            <div>
-                {{ latest_item.owner.email }}
-            </div>
+             {%  if email == latest_item.owner.email  %}
+                <div>
+                    <a href=/edit-item?item_id={{latest_item.id}}>Edit</a>
+                </div>
+                <div>
+                    <a href=/delete-item?item_id={{latest_item.id}}>Delete</a>
+                </div>
             {% endif %}
         </div>
     {% endfor %}
