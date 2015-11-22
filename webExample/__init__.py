@@ -1,12 +1,18 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 import datetime
+import os
 
 
 app = Flask(__name__, static_url_path='/static')
 app.secret_key = 'm-Ho83cJFux7J3XOJPfoz2IP'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/catalog'
+
+app.config['DEFAULT_FILE_STORAGE'] = 'filesystem'
+app.config['UPLOADS_FOLDER'] = os.path.dirname(__file__) + '/static/images'
+app.config['FILE_SYSTEM_STORAGE_FILE_VIEW'] = 'static'
+
 db = SQLAlchemy(app)
 
 class Owners(db.Model):

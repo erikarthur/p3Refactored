@@ -5,9 +5,12 @@ from webExample import db
 from webExample import Owners, Categories, Items
 import random
 import string
+from flask.ext.uploads import delete, init, save, Upload
 
 from form_classes import Catalog_Item, Category
 from wtforms import Field
+import os
+
 
 @app.after_request
 def apply_caching(response):
@@ -81,7 +84,13 @@ def add_item():
             category = db.session.query(Categories).filter_by(id=form.category_id.data).first()
             item = Items(item_name=form.name.data, owner=owner, category=category)
             item.description = form.description.data
-            item.picture = form.picture.data
+
+            #need to validate the file name and type
+            item.picture = url_for('static', filename="images/" + request.files['picture'].filename)
+            image_data = request.files['picture'].read()
+            fileName = os.path.join(os.path.dirname(__file__), 'static/images/', request.files['picture'].filename)
+            open(fileName, 'w').write(image_data)
+
             db.session.add(item)
             db.session.commit()
             url_string = '/category/%s' % item.category.category_name
