@@ -10,6 +10,7 @@ from flask.ext.uploads import delete, init, save, Upload
 from form_classes import Catalog_Item, Category
 from wtforms import Field
 import os
+from werkzeug import secure_filename
 
 
 @app.after_request
@@ -85,11 +86,16 @@ def add_item():
             item = Items(item_name=form.name.data, owner=owner, category=category)
             item.description = form.description.data
 
-            #need to validate the file name and type
-            item.picture = url_for('static', filename="images/" + request.files['picture'].filename)
-            image_data = request.files['picture'].read()
-            fileName = os.path.join(os.path.dirname(__file__), 'static/images/', request.files['picture'].filename)
-            open(fileName, 'w').write(image_data)
+            # need to validate the file name
+            if request.files['picture'].filename is not None:
+
+                filename = request.files['picture'].filename
+                filename = ensure_unique_filename(filename)
+
+                item.picture = url_for('static', filename="images/" + filename)
+                image_data = request.files['picture'].read()
+
+                open(os.path.join(os.path.dirname(__file__), 'static/images/', filename), 'w').write(image_data)
 
             db.session.add(item)
             db.session.commit()
@@ -99,6 +105,22 @@ def add_item():
             form.category_id.data = request.args.get('category')
             form.id.data = owner.id
         return render_template('pages/add-item.html', form=form)
+
+
+def ensure_unique_filename(filename):
+    if os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
+
+        file_name_parts = os.path.splitext(filename)
+
+        count = 0
+        filename = "%s%d%s" % (file_name_parts[0], count, file_name_parts[1], )
+
+        while os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
+
+            count += 1
+            filename = "%s%d%s" % (file_name_parts[0], count, file_name_parts[1], )
+
+    return filename
 
 
 @app.route('/delete-item', methods=['GET', 'POST'])

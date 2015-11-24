@@ -218,6 +218,12 @@ def gdisconnect():
 
 
 def check_email(email, name):
+    """
+    Checks if an email address exists for user in db after oauth
+    :param email: oauth email
+    :param name: oauth name if record needs to be added
+    :return:
+    """
     owner = db.session.query(Owners).filter_by(email=email).first()
     if owner is None:
         # add owner to database
