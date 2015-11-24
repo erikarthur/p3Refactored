@@ -5,8 +5,8 @@
      <div class="col-md-3 pull right">
         <div>
             <div>
-                <span><img id="profile_img" class="profile-img"></span>
-                <span id="user_id"></span>
+                <span><img id="profile_img" class="profile-img" src={{ url_for('static', filename='images/notSignedInProfileImage.png') }}></span>
+                <span id="user_id">Not Signed in</span>
             </div>
             <div id="GP_signinButton">
               <span class="g-signin"
@@ -23,7 +23,7 @@
             <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
             </fb:login-button>
             </div>
-            <button class="btn" type="button" id="signoutButton" onclick="displaySigninButtons()" style="visibility: collapse">Signout</button>
+            <button class="btn" type="button" id="signoutButton" onclick="sendSignoutToServer()" style="visibility: collapse">Signout</button>
 
         </div>
      </div>

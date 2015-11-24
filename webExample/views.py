@@ -6,6 +6,7 @@ from webExample import Owners, Categories, Items
 import random
 import string
 from flask.ext.uploads import delete, init, save, Upload
+import uuid
 
 from form_classes import Catalog_Item, Category
 from wtforms import Field
@@ -13,14 +14,12 @@ import os
 from werkzeug import secure_filename
 
 
-@app.after_request
-def apply_caching(response):
-    response.headers["X-Frame-Options"] = "SAMEORIGIN"
-    return response
-
-
 @app.route('/')
 def index():
+    """
+    Returns list of up to 10 items that have been added most recently
+    :return:
+    """
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
     latest_items = db.session.query(Items).order_by(Items.insert_date.desc()).limit(10)
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
@@ -40,7 +39,10 @@ def index():
 
 @app.route('/category/<name>')
 def get_category_items(name):
-
+    """
+    Returns a list of items in a catgory
+    :param name: this is the name of the category to quest
+    """
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
     categoryFilter = db.session.query(Categories).filter_by(category_name=name).first()
     category = db.session.query(Items).filter_by(category=categoryFilter).all()
@@ -58,7 +60,10 @@ def get_category_items(name):
 
 @app.route('/add-category', methods=['GET', 'POST'])
 def add_category():
-
+    """
+    Adds a new category to catalog
+    :return:
+    """
     if login_session.get('email') is not None:
         form = Category(request.form)
 
@@ -77,28 +82,49 @@ def add_category():
 
 @app.route('/add-item', methods=['GET', 'POST'])
 def add_item():
+    """
+    Adds new item to database.  Category is on request object.
+    :return:
+    """
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
         owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
         if request.method == 'POST' and form.validate():
             # add data
+
+            # get the category object
             category = db.session.query(Categories).filter_by(id=form.category_id.data).first()
+
+            # create a new Item
             item = Items(item_name=form.name.data, owner=owner, category=category)
+
+            # add the descriptoin
             item.description = form.description.data
 
+            # add the filename to the database and upload the file
             # need to validate the file name
             if request.files['picture'].filename is not None:
 
                 filename = request.files['picture'].filename
+                filename = secure_filename(filename)
+
+                # returns a UUID with the file extension
                 filename = ensure_unique_filename(filename)
 
+                # builds a URL to put in the database
                 item.picture = url_for('static', filename="images/" + filename)
+
+                # read the data and write to a file
                 image_data = request.files['picture'].read()
+                open(os.path.join(os.path.dirname(__file__), 'static/images/',
+                                  filename), 'w').write(image_data)
 
-                open(os.path.join(os.path.dirname(__file__), 'static/images/', filename), 'w').write(image_data)
-
+            # add the item and commit to db
             db.session.add(item)
             db.session.commit()
+
+            # build a url for redirection.  Goes back to the same category the
+            # item was added in.
             url_string = '/category/%s' % item.category.category_name
             return redirect(url_string)
         else:
@@ -108,17 +134,10 @@ def add_item():
 
 
 def ensure_unique_filename(filename):
-    if os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
-
-        file_name_parts = os.path.splitext(filename)
-
-        count = 0
-        filename = "%s%d%s" % (file_name_parts[0], count, file_name_parts[1], )
-
-        while os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
-
-            count += 1
-            filename = "%s%d%s" % (file_name_parts[0], count, file_name_parts[1], )
+    file_name_parts = os.path.splitext(filename)
+    filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
+    while os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
+        filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
 
     return filename
 

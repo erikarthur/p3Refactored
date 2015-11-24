@@ -73,7 +73,8 @@
                      $('#FB_signinButton').attr('style', 'display: block');
                      $('#GP_signinButton').attr('style', 'display: block');
                      $('#signoutButton').attr('style', 'visibility: collapse');
-                     $('#user_id').text("Not logged in.");
+                     $('#user_id').text("Not Signed in.");
+                     $('#profile_img').attr('src', '{{ url_for('static', filename="images/notSignedInProfileImage.png") }}');
                      sessionStorage.clear();
                  }
              });
