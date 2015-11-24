@@ -23,9 +23,11 @@ html,body
 }
 
 .img-class {
-
     max-width: 120px;
-    height:auto;
+    max-height:120px;
+}
 
-
+.btn-full {
+    width: 100%;
+    margin-bottom: 5px;
 }

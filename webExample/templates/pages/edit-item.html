@@ -13,7 +13,7 @@
   <div class="flash">{{ message }}</div>
 {% endfor %}
 
-    <form action={{ url_for('edit_item') }} method='post'>
+    <form action={{ url_for('edit_item') }} enctype="multipart/form-data" method='post'>
 
 
         <dt>{{ form.name.label }}</dt>

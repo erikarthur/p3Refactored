@@ -11,15 +11,17 @@ import json
 
 from webExample import app
 from webExample import db
-from webExample import Owners, Categories, Items
-
-cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
-CLIENT_ID = json.loads(
-    open(cs_file_path, 'r').read())['web']['client_id']
+from webExample import Owners
 
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """
+    Logs a user into Google Plus. Code pretty much lifted from
+    UD330 on github and the lecture.  I've added a few small changes
+    to send user data back to client and create a record for the user
+    in the database on successful login
+    """
     # Validate state token
     try:
         testVar = session['state']
@@ -70,6 +72,12 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+    # get the client id from a local file
+    cs_file_path = os.path.join(os.path.dirname(__file__), 'client_secrets.json')
+    CLIENT_ID = json.loads(
+        open(cs_file_path, 'r').read())['web']['client_id']
+
+
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
         response = make_response(
@@ -77,6 +85,7 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
+    # get current values for access token and gplus id from session
     stored_access_token = session.get('access_token')
     stored_gplus_id = session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
@@ -97,22 +106,27 @@ def gconnect():
 
     data = answer.json()
 
+    # store user info in session object for use else in the app
     session['username'] = data['name']
     session['picture'] = data['picture']
     session['email'] = data['email']
 
+    # check if this is a new user and if so add him/her to database
     check_email(session.get('email'), session.get('username'))
 
-    returnData = {'auth_service': 'Google', 'picture': data['picture'],
-                  'name': data['name'], 'email': data['email'],
-                  'social_id': session['gplus_id']}
-
-    json_returned = json.dumps(returnData)
-    return json_returned
+    # return some data to the client side for use in the front end
+    return json.dumps(
+        {'auth_service': 'Google', 'picture': data['picture'],
+         'name': data['name'], 'email': data['email'],
+         'social_id': session['gplus_id']})
 
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    """
+    Logins a user into FB with an access token.  Code pretty much lifted from
+    UD330 on github and the lecture.
+    """
     try:
         testVar = session['state']
     except KeyError:
@@ -126,10 +140,11 @@ def fbconnect():
     # print "access token received %s " % access_token
 
     cs_file_path = os.path.join(os.path.dirname(__file__), 'fb_client_secrets.json')
-    app_id = json.loads(open(cs_file_path, 'r').read())[
-        'web']['app_id']
+    app_id = json.loads(
+        open(cs_file_path, 'r').read())['web']['app_id']
     app_secret = json.loads(
         open(cs_file_path, 'r').read())['web']['app_secret']
+
     url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
         app_id, app_secret, access_token)
     h = httplib2.Http()
@@ -178,18 +193,27 @@ def fbconnect():
     # flash("Now logged in as %s" % session['username'])
     return jsonReturn
 
-@app.route('/fbdisconnect')
+@app.route('/fbdisconnect', methods=['POST'])
 def fbdisconnect():
+    """
+    Logs a user out of FB. Code pretty much lifted from
+    UD330 on github and the lecture.
+    """
     facebook_id = session['facebook_id']
     # The access token must me included to successfully logout
     access_token = session['access_token']
     url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id, access_token, )
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
+    session.clear()
     return "you have been logged out"
 
-@app.route('/gdisconnect')
+@app.route('/gdisconnect', methods=['POST'])
 def gdisconnect():
+    """
+    Logs a user out of GooglePlus. Code pretty much lifted from
+    UD330 on github and the lecture.
+    """
     # Only disconnect a connected user.
      # session['access_token'] = access_token
     access_token = session['access_token']
@@ -222,7 +246,6 @@ def check_email(email, name):
     Checks if an email address exists for user in db after oauth
     :param email: oauth email
     :param name: oauth name if record needs to be added
-    :return:
     """
     owner = db.session.query(Owners).filter_by(email=email).first()
     if owner is None:

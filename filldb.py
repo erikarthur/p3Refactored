@@ -16,6 +16,7 @@ def add_sample_item(o_name, o_email, c_name,i_name):
         db.session.commit()
 
     item = Items(item_name=i_name, owner=owner, category=category)
+    item.picture = '/static/images/default_item.png'
     db.session.add(item)
     db.session.commit()
     return

@@ -3,31 +3,32 @@
 {% block navigation %}
     <h2>Categories</h2>
 
-        <div class='nav-bar-item'>
+        <div>
             {% if email %}
-                 <a href=/add-category>Add Category</a>
+                 <a href=/add-category class="btn btn-default btn-full">Add Category</a>
             {% else %}
-                Sign in to edit
+                <h4 class="btn-full">Signin to add</h4>
             {% endif %}
         </div>
 
-        <div class='nav-bar-item'>
-                <a href={{ home }}>Home</a>
+        <div >
+                <a href={{ home }} class="btn btn-default btn-full">Home</a>
         </div>
 
         {% for category in categories%}
-            <div class='nav-bar-item'>
-                <a href=/category/{{category.category_name}}>{{ category.category_name }}</a>
+            <div>
+                <a href=/category/{{category.category_name}} class="btn btn-default btn-full">{{ category.category_name }}</a>
             </div>
         {% endfor %}
 {% endblock %}
 
 {% block content %}
-    <div class="col-md-9">
+    <div>
     <h2>Latest Catalog Items</h2>
     {% for latest_item in latest_items %}
-        <div style="margin-bottom: 10px">
-            <div>
+        <div class="col-md-6 panel panel-default">
+            <div class="panel-body">
+                <div>
                 <h3>{{ latest_item.item_name }}</h3>
             </div>
             <div>
@@ -36,14 +37,13 @@
             <div>
                   <img class="img-class" src={{latest_item.picture}}>
             </div>
-             {%  if email == latest_item.owner.email  %}
+             {%  if email and email == latest_item.owner.email  %}
                 <div>
-                    <a href=/edit-item?item_id={{latest_item.id}}>Edit</a>
-                </div>
-                <div>
-                    <a href=/delete-item?item_id={{latest_item.id}}>Delete</a>
+                    <a href=/edit-item?item_id={{latest_item.id}} class="btn btn-default">Edit</a>
+                    <a href=/delete-item?item_id={{latest_item.id}} class="btn btn-default">Delete</a>
                 </div>
             {% endif %}
+        </div>
         </div>
     {% endfor %}
     </div>

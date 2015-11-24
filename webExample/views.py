@@ -12,6 +12,7 @@ from form_classes import Catalog_Item, Category
 from wtforms import Field
 import os
 from werkzeug import secure_filename
+import datetime
 
 
 @app.route('/')
@@ -150,6 +151,14 @@ def delete_item():
         if request.method == 'POST' and form.validate():
             # delete item
             item = db.session.query(Items).filter_by(id=form.id.data).first()
+            try:
+                if os.path.basename(item.picture) is not 'default_item.png':
+                    os.remove(os.path.join(
+                        os.path.dirname(__file__), 'static/images/',
+                        os.path.basename(item.picture)))
+            except OSError:
+                pass
+
             url_string = '/category/%s' % item.category.category_name
             db.session.delete(item)
             db.session.commit()
@@ -176,7 +185,31 @@ def edit_item():
             item = db.session.query(Items).filter_by(id=form.id.data).first()
             item.item_name = form.name.data
             item.description = form.description.data
-            item.picture = form.picture.data
+            item.insert_date = datetime.datetime.now()
+            if request.files['picture'].filename != "":
+                # delete file if one exists
+                try:
+                    if os.path.basename(item.picture) != u'default_item.png':
+                        os.remove(os.path.join(
+                            os.path.dirname(__file__), 'static/images/',
+                            os.path.basename(item.picture)))
+                except OSError:
+                    pass
+
+                filename = request.files['picture'].filename
+                filename = secure_filename(filename)
+
+                # returns a UUID with the file extension
+                filename = ensure_unique_filename(filename)
+
+                # builds a URL to put in the database
+                item.picture = url_for('static', filename="images/" + filename)
+
+                # read the data and write to a file
+                image_data = request.files['picture'].read()
+                open(os.path.join(os.path.dirname(__file__), 'static/images/',
+                                  filename), 'w').write(image_data)
+
             db.session.add(item)
             db.session.commit()
             url_string = '/category/%s' % item.category.category_name

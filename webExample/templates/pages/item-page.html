@@ -5,19 +5,19 @@
 
         <div class='nav-bar-item'>
             {% if email %}
-                 <a href=/add-category>Add Category</a>
+                 <a href=/add-category class="btn btn-default btn-full">Add Category</a>
             {% else %}
                 Sign in to edit
             {% endif %}
         </div>
 
         <div class='nav-bar-item'>
-                <a href={{ home }}>Home</a>
+                <a href={{ home }} class="btn btn-default btn-full">Home</a>
         </div>
 
         {% for category in categories%}
             <div class='nav-bar-item'>
-                <a href=/category/{{category.category_name}}>{{ category.category_name }}</a>
+                <a href=/category/{{category.category_name}} class="btn btn-default btn-full">{{ category.category_name }}</a>
             </div>
         {% endfor %}
 
@@ -25,9 +25,10 @@
 
 {% block content %}
     <h2>{{ name }} Catalog Items</h2>
-    <div><a href=/add-item?category={{category_number}}>Add Item</a></div>
+    <div><a href=/add-item?category={{category_number}} class="btn btn-default">Add Item</a></div>
     {% for item in category %}
-        <div style="margin-bottom: 10px">
+         <div class="col-md-6 panel panel-default">
+            <div class="panel-body">
             <div>
                 <h3>{{ item.item_name }}</h3>
             </div>
@@ -39,12 +40,11 @@
             </div>
             {%  if email == item.owner.email  %}
                 <div>
-                    <a href=/edit-item?item_id={{item.id}}>Edit</a>
-                </div>
-                <div>
-                    <a href=/delete-item?item_id={{item.id}}>Delete</a>
+                    <a href=/edit-item?item_id={{item.id}} class="btn btn-default">Edit</a>
+                    <a href=/delete-item?item_id={{item.id}} class="btn btn-default">Delete</a>
                 </div>
             {% endif %}
+        </div>
         </div>
     {% endfor %}
 

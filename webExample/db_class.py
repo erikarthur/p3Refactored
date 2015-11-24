@@ -1,6 +1,7 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+import datetime
 
 Base = declarative_base()
 
@@ -24,14 +25,15 @@ class Categories(Base):
 class Items(Base):
     __tablename__ = 'items'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(80), nullable=False)
-    description = Column(String(250))
-    picture = Column(String(250))
-    owner_id = Column(Integer, ForeignKey('owners.id'))
-    owner = relationship(Owners)
-    category_id = Column(Integer, ForeignKey('categories.id'))
-    category = relationship(Categories)
+    id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(250))
+    picture = db.Column(db.String(250))
+    insert_date = db.Column(db.DateTime, default=datetime.datetime.now)
+    owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'))
+    owner = db.relationship(Owners)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    category = db.relationship(Categories)
 
 def add_items(o_name, o_email, c_name,i_name):
 
