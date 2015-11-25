@@ -9,7 +9,7 @@ from flask.ext.uploads import delete, init, save, Upload
 import uuid
 
 from form_classes import Catalog_Item, Category
-from wtforms import Field
+from wtforms import Field, validators, form
 import os
 from werkzeug import secure_filename
 import datetime
@@ -22,7 +22,7 @@ def index():
     :return:
     """
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
-    latest_items = db.session.query(Items).order_by(Items.insert_date.desc()).limit(10)
+    items = db.session.query(Items).order_by(Items.insert_date.desc()).limit(10)
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
     # login_session['state'] = state
@@ -34,7 +34,7 @@ def index():
 
     return render_template(
         "pages/latest-items.html", categories=categories,
-        latest_items=latest_items,
+        items=items,
         home='/', STATE=state, email=email)
 
 
@@ -46,7 +46,7 @@ def get_category_items(name):
     """
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
     categoryFilter = db.session.query(Categories).filter_by(category_name=name).first()
-    category = db.session.query(Items).filter_by(category=categoryFilter).all()
+    items = db.session.query(Items).filter_by(category=categoryFilter).all()
 
     if login_session.get('email') is not None:
         email = login_session['email']
@@ -54,9 +54,9 @@ def get_category_items(name):
         email = False
 
     return render_template(
-        "pages/item-page.html", categories=categories, category=category,
+        "pages/item-page.html", categories=categories, items=items,
         name=name, server='/category/',
-        home='/', email=email, category_number=categoryFilter.id)
+        home='/', email=email, category_number=categoryFilter.category_id)
 
 
 @app.route('/add-category', methods=['GET', 'POST'])
@@ -90,11 +90,15 @@ def add_item():
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
         owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
-        if request.method == 'POST' and form.validate():
+        if request.method == 'POST':
+            # and form.validate():
             # add data
 
             # get the category object
-            category = db.session.query(Categories).filter_by(id=form.category_id.data).first()
+            cate_number = form.category_select.data
+            category = db.session.query(Categories).filter_by(category_id=cate_number).one()
+
+            # category = db.session.query(Categories).first()
 
             # create a new Item
             item = Items(item_name=form.name.data, owner=owner, category=category)
@@ -130,17 +134,14 @@ def add_item():
             return redirect(url_string)
         else:
             form.category_id.data = request.args.get('category')
+
+            form.category_select.default = request.args.get('category')
+            form.process()    #this sets the default in the select but clears the rest of the form.
+
             form.id.data = owner.id
+            form.category_select.choices = get_categories()
+            form.submit.label.text = 'Add Item'
         return render_template('pages/add-item.html', form=form)
-
-
-def ensure_unique_filename(filename):
-    file_name_parts = os.path.splitext(filename)
-    filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
-    while os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
-        filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
-
-    return filename
 
 
 @app.route('/delete-item', methods=['GET', 'POST'])
@@ -148,7 +149,7 @@ def delete_item():
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
 
-        if request.method == 'POST' and form.validate():
+        if request.method == 'POST':
             # delete item
             item = db.session.query(Items).filter_by(id=form.id.data).first()
             try:
@@ -171,7 +172,7 @@ def delete_item():
             form.picture.data = item.picture
             form.id.data = request.args.get('item_id')
             form.category_id = item.category_id
-            form.submit.data = 'Delete Item'
+            form.submit.label.text = 'Delete Item'
             return render_template('pages/delete-item.html', form=form, heading=heading)
 
 
@@ -180,12 +181,18 @@ def edit_item():
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
 
-        if request.method == 'POST' and form.validate():
+        if request.method == 'POST':
             # delete item
             item = db.session.query(Items).filter_by(id=form.id.data).first()
+
+            cate_number = form.category_select.data
+            category = db.session.query(Categories).filter_by(category_id=cate_number).one()
+
             item.item_name = form.name.data
             item.description = form.description.data
             item.insert_date = datetime.datetime.now()
+            item.category = category
+
             if request.files['picture'].filename != "":
                 # delete file if one exists
                 try:
@@ -217,10 +224,31 @@ def edit_item():
         else:
             item = db.session.query(Items).filter_by(id=request.args.get('item_id')).first()
             heading = 'Edit Item'
+            form.category_select.choices = get_categories()
+            form.category_select.default = item.category_id
+            form.process()    #this sets the default in the select but clears the rest of the form.
             form.name.data = item.item_name
             form.description.data = item.description
             form.picture.data = item.picture
             form.id.data = request.args.get('item_id')
             form.category_id = item.category_id
-            form.submit.data = 'Save Changes'
+
+            form.submit.label.text = 'Save Changes'
+            # form.process()
             return render_template('pages/edit-item.html', form=form, heading=heading)
+
+def ensure_unique_filename(filename):
+    file_name_parts = os.path.splitext(filename)
+    filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
+    while os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
+        filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
+
+    return filename
+
+
+def get_categories():
+    cat_list = db.session.query(Categories).order_by(Categories.category_name).all()
+    category_tuple_array = []
+    for cate in cat_list:
+        category_tuple_array.append((cate.category_id, cate.category_name))
+    return category_tuple_array

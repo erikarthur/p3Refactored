@@ -1,7 +1,8 @@
 from webExample import db
 from webExample import Owners, Categories, Items
 
-def add_sample_item(o_name, o_email, c_name,i_name):
+
+def add_sample_item(o_name, o_email, c_name, i_name):
 
     owner = db.session.query(Owners).filter_by(email=o_email).first()
     if not owner:

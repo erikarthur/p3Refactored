@@ -12,7 +12,8 @@ dd {
 }
 html,body
 {
-  height: 100%;
+    height: 100%;
+    background-color: antiquewhite;
 }
 
 .footer {
@@ -23,11 +24,51 @@ html,body
 }
 
 .img-class {
-    max-width: 120px;
-    max-height:120px;
+    max-height:140px;
+    height:140px;
+    width:auto;
 }
 
 .btn-full {
     width: 100%;
     margin-bottom: 5px;
+}
+
+.glyphicon {
+    font-size: 25px;
+}
+
+.glyphicon-home {
+    font-size: 35px;
+}
+
+.trash {
+    position: absolute;
+    top: 61px;
+    right: 10px;
+}
+
+.pencil {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.item-list {
+
+}
+
+.item-container {
+    background-color: white;
+     margin-top: 63px;
+    padding: 10px;
+    border: inset black 1px;
+    border-radius: 5px;
+    max-height: 650px;
+    overflow-y: scroll;
+}
+
+h4 {
+    margin:0px;
+    padding:0px;
 }

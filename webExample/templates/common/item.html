@@ -1,0 +1,30 @@
+
+<div class="col-md-12 panel panel-default">
+    <div class="panel-body">
+        <div>
+            <div class="md-col-12">
+            <h4>{{ item.item_name }}</h4>
+            </div>
+        </div>
+        <div>
+            <div class="col-md-4">
+                <div>
+                     <em>{{ item.category.category_name }}</em>
+                </div>
+                <div>
+                    {{ item.description }}
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div>
+                    <img class="img-class" src={{item.picture}}>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                {%  include 'common/add-delete-button.html'%}
+            </div>
+        </div>
+    </div>
+</div>

@@ -27,7 +27,7 @@ class Owners(db.Model):
 
 class Categories(db.Model):
     #__tablename__ = 'categories'
-    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String(250), nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'))
     owner = db.relationship(Owners)
@@ -43,16 +43,8 @@ class Items(db.Model):
     insert_date = db.Column(db.DateTime, default=datetime.datetime.now)
     owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'))
     owner = db.relationship(Owners)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.category_id'))
     category = db.relationship(Categories)
-
-    # def __init__(self, name, description, picture, pub_date=None):
-    #     self.name = title
-    #     self.description = body
-    #     self.picture = picture
-    #     if pub_date is None:
-    #         pub_date = datetime.utcnow()
-    #     self.insert_date = pub_date
 
 
 import webExample.views

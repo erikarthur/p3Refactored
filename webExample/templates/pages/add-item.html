@@ -19,22 +19,27 @@
 {% endfor %}
 
     <form action="{{ url_for('add_item') }}" enctype="multipart/form-data" method=post class=add-entry>
+        <div class="form-group">
 
+        <dt>{{ form.name.label(class_="label label-default") }}</dt>
+        <dd>{{ form.name(class_='form-control')  }}</dd>
 
-        <dt>{{ form.name.label }}</dt>
-        <dd>{{ form.name }}</dd>
+        <dt>{{ form.category_select.label(class_="label label-default") }}</dt>
+        <dd>{{ form.category_select(class_='form-control')  }}</dd>
 
-        <dt>{{ form.description.label }}</dt>
-        <dd>{{ form.description }}</dd>
+        <dt>{{ form.description.label(class_="label label-default") }}</dt>
+        <dd>{{ form.description(class_='form-control')  }}</dd>
 
-        <dt>{{ form.picture.label }}</dt>
-        <dd>{{ form.picture() }}</dd>
+        <dt>{{ form.picture.label(class_="label label-default") }}</dt>
+        <dd>{{ form.picture()  }}</dd>
 
         {{ form.id }}
         {{ form.category_id }}
 
 
-        <dd>{{ form.submit }}</dd>
+        <dd>{{ form.submit(class_="form-control btn btn-default") }}</dd>
+
+        </div>
 
     </form>
 {% endblock %}

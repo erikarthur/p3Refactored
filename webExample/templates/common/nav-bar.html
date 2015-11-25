@@ -1,14 +1,15 @@
-<div style="display:inline-block;vertical-align: top; width:19%">
-    <h2>Navigation</h2>
 
-    <div>
-        <a href={{ home }}>Home</a>
-     </div>
-
-    {% for category in categories%}
-        <div style="margin-left: 10px">
-            <a href={{ server }}{{ category.category }}>{{ category.category }}</a>
-        </div>
-    {% endfor %}
-
+ <div style="background-color: antiquewhite">
+ {% if email %}
+    <a href=/add-category>
+        <h2><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Categories</h2>
+    </a>
+    {% else  %}
+        <h2>Categories</h2>
+ {% endif %}
+{% for category in categories%}
+    <div class='nav-bar-item'>
+        <a href=/category/{{category.category_name}} class="btn btn-default btn-full">{{ category.category_name }}</a>
+    </div>
+{% endfor %}
 </div>

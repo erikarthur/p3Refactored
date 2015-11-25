@@ -1,51 +1,14 @@
 {% extends 'layout.html' %}
 
 {% block navigation %}
-        <h2>Categories</h2>
-
-        <div class='nav-bar-item'>
-            {% if email %}
-                 <a href=/add-category class="btn btn-default btn-full">Add Category</a>
-            {% else %}
-                Sign in to edit
-            {% endif %}
-        </div>
-
-        <div class='nav-bar-item'>
-                <a href={{ home }} class="btn btn-default btn-full">Home</a>
-        </div>
-
-        {% for category in categories%}
-            <div class='nav-bar-item'>
-                <a href=/category/{{category.category_name}} class="btn btn-default btn-full">{{ category.category_name }}</a>
-            </div>
-        {% endfor %}
-
+    {%  include 'common/nav-bar.html' %}
 {% endblock %}
 
 {% block content %}
-    <h2>{{ name }} Catalog Items</h2>
-    <div><a href=/add-item?category={{category_number}} class="btn btn-default">Add Item</a></div>
-    {% for item in category %}
-         <div class="col-md-6 panel panel-default">
-            <div class="panel-body">
-            <div>
-                <h3>{{ item.item_name }}</h3>
-            </div>
-            <div>
-                {{ item.description }}
-            </div>
-            <div>
-                <img class="img-class" src={{item.picture}}>
-            </div>
-            {%  if email == item.owner.email  %}
-                <div>
-                    <a href=/edit-item?item_id={{item.id}} class="btn btn-default">Edit</a>
-                    <a href=/delete-item?item_id={{item.id}} class="btn btn-default">Delete</a>
-                </div>
-            {% endif %}
-        </div>
-        </div>
+    <div class="item-list">
+    <a href=/add-item?category={{category_number}} class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;{{ name }}</span></a>
+    </div>
+    {% for item in items %}
+        {% include 'common/item.html' %}
     {% endfor %}
-
 {% endblock %}

@@ -1,4 +1,4 @@
-from wtforms import Form, StringField, IntegerField, validators, HiddenField, SubmitField, FileField
+from wtforms import Form, StringField, IntegerField, validators, HiddenField, SubmitField, FileField, SelectField
 
 def checkfile(form, field):
     if field.file:
@@ -11,15 +11,14 @@ class Category(Form):
     email = HiddenField()
     submit = SubmitField("Add Category")
 
+
 class Catalog_Item(Form):
     name = StringField(u'Name', validators=[validators.input_required()])
     description = StringField(u'Description')
     picture = FileField(u'Upload Image')
     id = HiddenField()
     category_id = HiddenField()
-    submit = SubmitField("Add Item")
+    submit = SubmitField('Add Item')
+    category_select = SelectField('Category')
     #description = StringField(u'Description', validators=[validators.input_required()])
     #picture = StringField(u'Picture', validators=[validators.input_required()])
-
-
-

@@ -24,27 +24,9 @@
 
 {% block content %}
     <div>
-    <h2>Latest Catalog Items</h2>
-    {% for latest_item in latest_items %}
-        <div class="col-md-6 panel panel-default">
-            <div class="panel-body">
-                <div>
-                <h3>{{ latest_item.item_name }}</h3>
-            </div>
-            <div>
-                {{ latest_item.description }}
-            </div>
-            <div>
-                  <img class="img-class" src={{latest_item.picture}}>
-            </div>
-             {%  if email and email == latest_item.owner.email  %}
-                <div>
-                    <a href=/edit-item?item_id={{latest_item.id}} class="btn btn-default">Edit</a>
-                    <a href=/delete-item?item_id={{latest_item.id}} class="btn btn-default">Delete</a>
-                </div>
-            {% endif %}
-        </div>
-        </div>
+    <em style="display: block";>Latest Catalog Items</em>
+    {% for item in items %}
+        {% include 'common/item.html' %}
     {% endfor %}
     </div>
 {% endblock %}

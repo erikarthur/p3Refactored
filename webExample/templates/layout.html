@@ -40,12 +40,13 @@
 
 </head>
 <body class="container-fluid">
-    {% include 'common/header.html' %}
+    <div class="row" style="background-color: antiquewhite">
+        {% include 'common/header.html' %}
+    </div>
     <div class="row">
         <div class="col-md-3">{% block navigation %} {% endblock %}</div>
-        <div class="col-md-8">{% block content %} {% endblock %}</div>
+        <div class="col-md-8 item-container">{% block content %} {% endblock %}</div>
     </div>
-{#    {% include 'common/footer.html' %}#}
     <div id="result"></div>
      <script>
 
