@@ -5,9 +5,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="item-list">
-    <a href=/add-item?category={{category_number}} class="btn btn-default"><span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;{{ name }}</span></a>
-    </div>
+
     {% for item in items %}
         {% include 'common/item.html' %}
     {% endfor %}

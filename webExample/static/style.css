@@ -55,17 +55,17 @@ html,body
 }
 
 .item-list {
-
+ padding-top: 20px;
 }
 
 .item-container {
     background-color: white;
-     margin-top: 63px;
     padding: 10px;
     border: inset black 1px;
     border-radius: 5px;
     max-height: 650px;
     overflow-y: scroll;
+
 }
 
 h4 {

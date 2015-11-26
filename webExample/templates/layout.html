@@ -44,8 +44,26 @@
         {% include 'common/header.html' %}
     </div>
     <div class="row">
+        <div class="col-md-3">
+            {% if email %}
+    <a href=/add-category>
+        <h2><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Categories</h2>
+    </a>
+    {% else  %}
+        <h2>Categories</h2>
+ {% endif %}
+        </div>
+         <div class="item-list col-md-8">
+             {% if category_number != None %}
+             <a href=/add-item?category={{category_number}}><span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;{{ name }}</span></a>
+            {% endif %}
+         </div>
+    </div>
+    <div class="row">
         <div class="col-md-3">{% block navigation %} {% endblock %}</div>
-        <div class="col-md-8 item-container">{% block content %} {% endblock %}</div>
+        <div class="col-md-8 item-container">
+
+            {% block content %} {% endblock %}</div>
     </div>
     <div id="result"></div>
      <script>

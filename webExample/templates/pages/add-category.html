@@ -25,13 +25,13 @@
     <form action="{{ url_for('add_category') }}" method=post class=add-entry>
 
 
-        {{ form.category_name.label }}
-        {{ form.category_name }}
+        <dt>{{ form.category_name.label }}</dt>
+        <dd>{{ form.category_name }}</dd>
 
-        {{ form.id }}
-        {{ form.email }}
+        <dt>{{ form.id }}</dt>
+        <dd>{{ form.email }}</dd>
 
-        {{ form.submit }}
+        <dd>{{ form.submit }}</dd>
 
     </form>
 
