@@ -10,6 +10,8 @@ import uuid
 
 from form_classes import Catalog_Item, Category
 from wtforms import Field, validators, form
+from wtforms.validators import Required, ValidationError, Length, DataRequired
+
 import os
 from werkzeug import secure_filename
 import datetime
@@ -89,9 +91,12 @@ def add_item():
     """
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
+
         owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
-        if request.method == 'POST':
-            # and form.validate():
+
+        form.category_select.choices = get_categories()
+
+        if request.method == 'POST' and form.validate():
             # add data
 
             # get the category object
@@ -108,7 +113,7 @@ def add_item():
 
             # add the filename to the database and upload the file
             # need to validate the file name
-            if request.files['picture'].filename is not None:
+            if request.files['picture'].filename != "":
 
                 filename = request.files['picture'].filename
                 filename = secure_filename(filename)
@@ -150,19 +155,27 @@ def delete_item():
         form = Catalog_Item(request.form)
 
         if request.method == 'POST':
-            # delete item
+             # find the item
             item = db.session.query(Items).filter_by(id=form.id.data).first()
-            try:
-                if os.path.basename(item.picture) is not 'default_item.png':
-                    os.remove(os.path.join(
-                        os.path.dirname(__file__), 'static/images/',
-                        os.path.basename(item.picture)))
-            except OSError:
-                pass
 
-            url_string = '/category/%s' % item.category.category_name
-            db.session.delete(item)
-            db.session.commit()
+            # check if the item was found
+            if item is not None and login_session.get('email') is not None:
+                try:
+                    if item.picture is not None:
+                        os.remove(os.path.join(
+                            os.path.dirname(__file__), 'static/images/',
+                            os.path.basename(item.picture)))
+                except OSError:
+                    pass
+
+                # set the URL for redirecting
+                url_string = '/category/%s' % item.category.category_name
+
+                db.session.delete(item)
+                db.session.commit()
+            else:
+                url_string = '/'
+
             return redirect(url_string)
         else:
             item = db.session.query(Items).filter_by(id=request.args.get('item_id')).first()
@@ -171,6 +184,7 @@ def delete_item():
             form.description.data = item.description
             form.picture.data = item.picture
             form.id.data = request.args.get('item_id')
+            form.category_name.data = item.category.category_name
             form.category_id = item.category_id
             form.submit.label.text = 'Delete Item'
             return render_template('pages/delete-item.html', form=form, heading=heading)

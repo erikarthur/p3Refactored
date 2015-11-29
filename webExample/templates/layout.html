@@ -120,14 +120,7 @@
                   success: function(result) {
                     // Handle or verify the server response if necessary.
                     if (result) {
-                        json_result = JSON.parse(result)
-
-                        sessionStorage.setItem("email", json_result.email);
-                        sessionStorage.setItem("name", json_result.name);
-                        sessionStorage.setItem("picture", json_result.picture);
-                        sessionStorage.setItem("auth_service", json_result.auth_service);
-                        console.log(sessionStorage);
-                         hideSigninButtons();
+                        storeServerDataAndReloadPage(result);
                     } else if (authResult['error']) {
                       console.log('There was an error: ' + authResult['error']);
                     } else {
@@ -156,16 +149,7 @@
               data: access_token,
               contentType: 'application/octet-stream; charset=utf-8',
               success: function(result) {
-                  json_result = JSON.parse(result)
-
-                  sessionStorage.setItem("email", json_result.email);
-                  sessionStorage.setItem("name", json_result.name);
-                  sessionStorage.setItem("picture", json_result.picture);
-                  sessionStorage.setItem("auth_service", json_result.auth_service);
-
-                  console.log(sessionStorage);
-
-                  hideSigninButtons();
+                  storeServerDataAndReloadPage(result);
               },
                  error: function(result) {
                 console.log('There was an error: ' + result);
@@ -173,6 +157,27 @@
              });
             });
           }
+
+        function storeServerDataAndReloadPage(json_data) {
+            //parse server returned data
+            json_result = JSON.parse(json_data);
+
+            //stores the user data from the server
+            if (json_result.email)
+                sessionStorage.setItem("email", json_result.email);
+            if (json_result.name)
+                sessionStorage.setItem("name", json_result.name);
+            if (json_result.picture)
+                sessionStorage.setItem("picture", json_result.picture);
+            if (json_result.auth_service)
+                sessionStorage.setItem("auth_service", json_result.auth_service);
+
+            //hides the signin button and displays the user avatar
+            hideSigninButtons();
+
+            //reload the current page.
+            location.reload(true);
+        }
 
          function displaySigninButtons() {
          //if (sessionStorage.getItem('email') != null) {
