@@ -8,7 +8,7 @@ import string
 from flask.ext.uploads import delete, init, save, Upload
 import uuid
 
-from form_classes import Catalog_Item, Category
+from form_classes import Catalog_Item, Category, Delete_Category
 from wtforms import Field, validators, form
 from wtforms.validators import Required, ValidationError, Length, DataRequired
 
@@ -16,6 +16,7 @@ import os
 from werkzeug import secure_filename
 import datetime
 
+from classes.CountList import CountList
 
 @app.route('/')
 def index():
@@ -23,7 +24,8 @@ def index():
     Returns list of up to 10 items that have been added most recently
     :return:
     """
-    categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    #categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    categories = get_category_counts()
     items = db.session.query(Items).order_by(Items.insert_date.desc()).limit(10)
     state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                     for x in xrange(32))
@@ -46,7 +48,8 @@ def get_category_items(name):
     Returns a list of items in a catgory
     :param name: this is the name of the category to quest
     """
-    categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    #categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    categories = get_category_counts()
     categoryFilter = db.session.query(Categories).filter_by(category_name=name).first()
     items = db.session.query(Items).filter_by(category=categoryFilter).all()
 
@@ -147,6 +150,22 @@ def add_item():
             form.category_select.choices = get_categories()
             form.submit.label.text = 'Add Item'
         return render_template('pages/add-item.html', form=form)
+
+@app.route('/delete-category', methods=['GET', 'POST'])
+def delete_category():
+    if login_session.get('email') is not None:
+        category_count_list = get_empty_category_counts()
+        form = Delete_Category(request.form)
+
+        if request.method == 'POST':
+            # delete categories
+            i = 1
+            url_string = '/'
+            redirect(url_string)
+        else:
+            form.categories.choices = category_count_list
+            form.process()
+            return render_template('pages/delete-category.html', form=form)
 
 
 @app.route('/delete-item', methods=['GET', 'POST'])
@@ -251,6 +270,7 @@ def edit_item():
             # form.process()
             return render_template('pages/edit-item.html', form=form, heading=heading)
 
+
 def ensure_unique_filename(filename):
     file_name_parts = os.path.splitext(filename)
     filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
@@ -260,9 +280,27 @@ def ensure_unique_filename(filename):
     return filename
 
 
-def get_categories():
-    cat_list = db.session.query(Categories).order_by(Categories.category_name).all()
-    category_tuple_array = []
-    for cate in cat_list:
-        category_tuple_array.append((cate.category_id, cate.category_name))
-    return category_tuple_array
+def get_category_counts():
+    category_count_list = []
+    categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    for category in categories:
+        item_count = db.session.query(Items).filter_by(category_id=category.category_id).count()
+        c = {"category_id": category.category_id,
+             "category_name": category.category_name,
+             "count": item_count}
+        category_count_list.append(c)
+    return category_count_list
+
+
+def get_empty_category_counts():
+    category_count_list = []
+    categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    for category in categories:
+        item_count = db.session.query(Items).filter_by(category_id=category.category_id).count()
+        if item_count == 0 :
+            # c = {"category_id": category.category_id,
+            #      "category_name": category.category_name,
+            #      "count": item_count}
+            c = (category.category_id, category.category_name)
+            category_count_list.append(c)
+    return category_count_list

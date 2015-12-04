@@ -1,5 +1,8 @@
-from wtforms import Form, StringField, IntegerField, validators, HiddenField, SubmitField, FileField, SelectField
+from wtforms import Form, StringField, IntegerField, validators, HiddenField
+from wtforms import SubmitField, FileField, SelectField, SelectMultipleField, widgets
 from wtforms.validators import DataRequired, Length, Optional
+from markupsafe import Markup, escape
+
 
 class Category(Form):
     category_name = StringField(u'CategoryName',
@@ -10,6 +13,20 @@ class Category(Form):
 
     def __init__(self, *args, **kwargs):
         super(Category, self).__init__(*args, **kwargs)
+
+
+class Delete_Category(Form):
+    categories = SelectMultipleField(
+        'Categories',
+        coerce=int,
+        option_widget=widgets.CheckboxInput(),
+        widget=widgets.ListWidget(prefix_label=False))
+    submit = SubmitField('Delete Categories')
+
+    def __html__(self):
+        fields = [u"%s %s" % (field.label, field) for field in self.fields]
+        return Markup(u"".join(fields))
+
 
 class Catalog_Item(Form):
     name = StringField(u'Name',

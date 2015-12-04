@@ -1,32 +1,12 @@
 {% extends 'layout.html' %}
 
 {% block navigation %}
-    <h2>Categories</h2>
-
-        <div>
-            {% if email %}
-                 <a href=/add-category class="btn btn-default btn-full">Add Category</a>
-            {% else %}
-                <h4 class="btn-full">Signin to add</h4>
-            {% endif %}
-        </div>
-
-        <div >
-                <a href={{ home }} class="btn btn-default btn-full">Home</a>
-        </div>
-
-        {% for category in categories%}
-            <div>
-                <a href=/category/{{category.category_name}} class="btn btn-default btn-full">{{ category.category_name }}</a>
-            </div>
-        {% endfor %}
+    {%  include 'common/nav-bar.html' %}
 {% endblock %}
 
 {% block content %}
-    <div>
-    <em style="display: block";>Latest Catalog Items</em>
+
     {% for item in items %}
         {% include 'common/item.html' %}
     {% endfor %}
-    </div>
 {% endblock %}
