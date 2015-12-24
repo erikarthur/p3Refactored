@@ -1,17 +1,20 @@
 <header class="top" role="header">
-     <div class="col-md-9">
-         <a href={{ home }}>
+     <div class="col-md-9 col-sm-8">
+         <a href="/">
             <span class="glyphicon glyphicon-home" aria-hidden="true"></span>
 
 
          <H1 style="display: inline-block">Catalog App</H1>
          </a>
      </div>
-     <div class="col-md-3 pull right">
+     <div class="col-md-3 col-sm-4 pull right">
         <div>
             <div>
                 <span><img id="profile_img" class="profile-img" src={{ url_for('static', filename='app_images/notSignedInProfileImage.png') }}></span>
                 <span id="user_id">Not Signed in</span>
+                <button class="btn btn-default" type="button" id="signoutButton" onclick="sendSignoutToServer()" style="visibility: collapse">
+                    <span id="login_state" class="glyphicon glyphicon-log-in" aria-hidden="true"></span>
+                </button>
             </div>
             <div id="GP_signinButton">
               <span class="g-signin"
@@ -28,7 +31,7 @@
             <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
             </fb:login-button>
             </div>
-            <button class="btn" type="button" id="signoutButton" onclick="sendSignoutToServer()" style="visibility: collapse">Signout</button>
+
 
         </div>
      </div>

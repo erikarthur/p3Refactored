@@ -1,20 +1,7 @@
 {% extends 'layout.html' %}
 
-{% block navigation %}
-        <h2>Navigation</h2>
-        <div>
-            <a href={{ home }}>Home</a>
-         </div>
-
-        {% for category in categories%}
-            <div>
-               <a href=/category/{{category.category_name}}> {{ category.category_name }}</a>
-            </div>
-        {% endfor %}
-{% endblock %}
-
 {% block content %}
-    <h2>{{ Heading }}</h2>
+    <h2>Delete Item?</h2>
     {% for message in get_flashed_messages() %}
       <div class="flash">{{ message }}</div>
     {% endfor %}
@@ -23,10 +10,10 @@
 
 
         <dt>{{ form.name.label }}</dt>
-        <dd>{{ form.name }}</dd>
+        <dd>{{ form.name(readonly=true) }}</dd>
 
         <dt>{{ form.description.label }}</dt>
-        <dd>{{ form.description }}</dd>
+        <dd>{{ form.description(readonly=true) }}</dd>
 
         {{ form.id }}
         {{ form.category_name }}

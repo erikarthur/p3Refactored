@@ -23,10 +23,6 @@ class Delete_Category(Form):
         widget=widgets.ListWidget(prefix_label=False))
     submit = SubmitField('Delete Categories')
 
-    def __html__(self):
-        fields = [u"%s %s" % (field.label, field) for field in self.fields]
-        return Markup(u"".join(fields))
-
 
 class Catalog_Item(Form):
     name = StringField(u'Name',

@@ -36,32 +36,22 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script src="//apis.google.com/js/platform.js" async defer> </script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='bootstrap.css') }}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 <body class="container-fluid">
-    <div class="row" style="background-color: antiquewhite">
+    <div class="row">
         {% include 'common/header.html' %}
     </div>
+    {% block row_headers %} {% endblock %}
+
     <div class="row">
-        <div class="col-md-3">
-            {% if email %}
-    <a href=/add-category>
-        <h2><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Categories</h2>
-    </a>
-    {% else  %}
-        <h2>Categories</h2>
- {% endif %}
+        <div class="col-md-3 col-sm-3">
+            {% block navigation %} {% endblock %}
+            {% block manage_categories %} {% endblock %}
         </div>
-         <div class="item-list col-md-8">
-             {% if category_number != None %}
-             <a href=/add-item?category={{category_number}}><span class="glyphicon glyphicon-plus" aria-hidden="true">&nbsp;{{ name }}</span></a>
-            {% endif %}
-         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-3">{% block navigation %} {% endblock %}</div>
-        <div class="col-md-8 item-container">
+        <div class="col-md-8 col-sm-8 item-container">
 
             {% block content %} {% endblock %}</div>
     </div>
@@ -74,6 +64,7 @@
                  $('#FB_signinButton').attr('style', 'display: none');
                  $('#GP_signinButton').attr('style', 'display: none');
                  $('#signoutButton').attr('style', 'visibility: visible');
+                 $('#login_state').toggleClass("glyphicon-log-in glyphicon-log-out" );
                  $('#profile_img').attr('src', sessionStorage.getItem('picture'));
                  $('#user_id').text(sessionStorage.getItem('name'));
            }

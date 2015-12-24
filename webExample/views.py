@@ -46,7 +46,7 @@ def index():
 def get_category_items(name):
     """
     Returns a list of items in a catgory
-    :param name: this is the name of the category to quest
+    :param name: this is the name of the category to show
     """
     #categories = db.session.query(Categories).order_by(Categories.category_name).all()
     categories = get_category_counts()
@@ -97,7 +97,7 @@ def add_item():
 
         owner = db.session.query(Owners).filter_by(email=login_session.get('email')).first()
 
-        form.category_select.choices = get_categories()
+        form.category_select.choices = get_all_categories()
 
         if request.method == 'POST' and form.validate():
             # add data
@@ -111,7 +111,7 @@ def add_item():
             # create a new Item
             item = Items(item_name=form.name.data, owner=owner, category=category)
 
-            # add the descriptoin
+            # add the description
             item.description = form.description.data
 
             # add the filename to the database and upload the file
@@ -147,21 +147,29 @@ def add_item():
             form.process()    #this sets the default in the select but clears the rest of the form.
 
             form.id.data = owner.id
-            form.category_select.choices = get_categories()
+            form.category_select.choices = get_all_categories()
             form.submit.label.text = 'Add Item'
         return render_template('pages/add-item.html', form=form)
 
+
 @app.route('/delete-category', methods=['GET', 'POST'])
 def delete_category():
+    """
+    End point to delete an empty category from catalog
+    :return: back to home page
+    """
     if login_session.get('email') is not None:
         category_count_list = get_empty_category_counts()
         form = Delete_Category(request.form)
 
         if request.method == 'POST':
-            # delete categories
-            i = 1
-            url_string = '/'
-            redirect(url_string)
+            for datum in form.categories.data:
+                print datum
+                category_to_delete = db.session.query(Categories).filter_by(category_id=datum).first()
+                db.session.delete(category_to_delete)
+                db.session.commit()
+
+            return redirect(url_for('index'))
         else:
             form.categories.choices = category_count_list
             form.process()
@@ -170,6 +178,10 @@ def delete_category():
 
 @app.route('/delete-item', methods=['GET', 'POST'])
 def delete_item():
+    """
+    Endpoint to delete item from catalog
+    :return: back to category list
+    """
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
 
@@ -211,6 +223,10 @@ def delete_item():
 
 @app.route('/edit-item', methods=['GET', 'POST'])
 def edit_item():
+    """
+    Endpoint to edit an item in the catalog
+    :return: returns back to category list
+    """
     if login_session.get('email') is not None:
         form = Catalog_Item(request.form)
 
@@ -257,7 +273,7 @@ def edit_item():
         else:
             item = db.session.query(Items).filter_by(id=request.args.get('item_id')).first()
             heading = 'Edit Item'
-            form.category_select.choices = get_categories()
+            form.category_select.choices = get_all_categories()
             form.category_select.default = item.category_id
             form.process()    #this sets the default in the select but clears the rest of the form.
             form.name.data = item.item_name
@@ -272,6 +288,11 @@ def edit_item():
 
 
 def ensure_unique_filename(filename):
+    """
+    Creates a unique filename for an upload
+    :param filename:
+    :return: unique filename
+    """
     file_name_parts = os.path.splitext(filename)
     filename = '%s%s' % (uuid.uuid4().hex, file_name_parts[1], )
     while os.path.exists(os.path.join(os.path.dirname(__file__), 'static/images/', filename)):
@@ -281,6 +302,10 @@ def ensure_unique_filename(filename):
 
 
 def get_category_counts():
+    """
+    Queries DB for list of all categories and counts of items in category
+    :return: list of categories and counts
+    """
     category_count_list = []
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
     for category in categories:
@@ -292,15 +317,27 @@ def get_category_counts():
     return category_count_list
 
 
+def get_all_categories():
+    """
+    Queries DB for list of all categories
+    :return: list of categories
+    """
+    category_list = []
+    categories = db.session.query(Categories).order_by(Categories.category_name).all()
+    for category in categories:
+        category_list.append((category.category_id, category.category_name))
+    return category_list
+
+
 def get_empty_category_counts():
+    """
+    Queries DB for list of empty categories
+    :return: list of empty categories
+    """
     category_count_list = []
     categories = db.session.query(Categories).order_by(Categories.category_name).all()
     for category in categories:
         item_count = db.session.query(Items).filter_by(category_id=category.category_id).count()
         if item_count == 0 :
-            # c = {"category_id": category.category_id,
-            #      "category_name": category.category_name,
-            #      "count": item_count}
-            c = (category.category_id, category.category_name)
-            category_count_list.append(c)
+            category_count_list.append((category.category_id, category.category_name))
     return category_count_list
